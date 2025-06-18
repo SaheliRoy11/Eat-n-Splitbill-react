@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 const initialFriends = [
   {
     id: 118836,
@@ -20,12 +22,22 @@ const initialFriends = [
 ];
 
 export default function App() {
+  const [showAddFriend, setShowAddFriend] = useState(false); //state to check if add friend form is open or not
+
+  function handleShowAddFriend() {
+    setShowAddFriend((showAddFriend) => !showAddFriend); //using callback function because the new value of state is depending on the current value of state.
+  }
+
   return (
     <div className="app">
       <div className="sidebar">
         <FriendsList />
-        <FormAddFriend />
-        <Button>Add Friend</Button>
+
+        {showAddFriend ? <FormAddFriend /> : null}
+
+        <Button handleClick={handleShowAddFriend}>
+          {showAddFriend ? "Close" : "Add Friend"}
+        </Button>
       </div>
 
       <FormSplitBill />
@@ -51,19 +63,17 @@ function Friend({ friend }) {
       <div>
         <h3>{friend.name}</h3>
 
-        {friend.balance > 0 ? 
+        {friend.balance > 0 ? (
           <p className="green">
             {friend.name} owes you ${friend.balance}
           </p>
-
-        : friend.balance < 0 ? 
+        ) : friend.balance < 0 ? (
           <p className="red">
             You owe {friend.name} ${Math.abs(friend.balance)}
           </p>
-
-        : <p>You and {friend.name} are even</p>
-        }
-
+        ) : (
+          <p>You and {friend.name} are even</p>
+        )}
       </div>
 
       <Button>Select</Button>
@@ -74,7 +84,6 @@ function Friend({ friend }) {
 function FormAddFriend() {
   return (
     <form className="form-add-friend">
-
       <label>👭 Friend name</label>
       <input type="text"></input>
 
@@ -112,7 +121,10 @@ function FormSplitBill() {
 }
 
 // Reusable components
-function Button({ children }) {
-  return <button className="button">{children}</button>;
+function Button({ handleClick, children }) {
+  return (
+    <button className="button" onClick={handleClick}>
+      {children}
+    </button>
+  );
 }
-
