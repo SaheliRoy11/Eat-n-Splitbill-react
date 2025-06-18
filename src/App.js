@@ -23,17 +23,25 @@ const initialFriends = [
 
 export default function App() {
   const [showAddFriend, setShowAddFriend] = useState(false); //state to check if add friend form is open or not
+  const [friends, setFriends] = useState(initialFriends);//list of friends (initialised with some random data)
 
   function handleShowAddFriend() {
     setShowAddFriend((showAddFriend) => !showAddFriend); //using callback function because the new value of state is depending on the current value of state.
   }
 
+  function handleAddFriend(newFriend) {
+    //use callback function because we need to work on current array to create a new Array and send it back.Remember, never mutate original array then React will not know about it and hence not re-render.
+    setFriends(friends => [...friends, newFriend]);
+
+    setShowAddFriend(false);//after adding a new friend, close the FormAddFriend
+  }
+
   return (
     <div className="app">
       <div className="sidebar">
-        <FriendsList />
+        <FriendsList friends={friends}/>
 
-        {showAddFriend ? <FormAddFriend /> : null}
+        {showAddFriend ? <FormAddFriend friends={friends} onAddFriend={handleAddFriend} /> : null}
 
         <Button handleClick={handleShowAddFriend}>
           {showAddFriend ? "Close" : "Add Friend"}
@@ -45,10 +53,10 @@ export default function App() {
   );
 }
 
-function FriendsList() {
+function FriendsList({friends}) {
   return (
     <ul>
-      {initialFriends.map((friend) => (
+      {friends.map((friend) => (
         <Friend friend={friend} key={friend.id} />
       ))}
     </ul>
@@ -81,14 +89,36 @@ function Friend({ friend }) {
   );
 }
 
-function FormAddFriend() {
+function FormAddFriend({onAddFriend}) {
+  const [name, setName] = useState('');
+  const [url, setUrl] = useState('https://i.pravatar.cc/48');//initial part of the url
+
+  function createFriend(e) {
+    e.preventDefault();
+
+    if(!name || !url) return;
+
+    const newFriendId = crypto.randomUUID();//inbuilt
+    const newFriend = {id: newFriendId, 
+      name,
+      image: `${url}?=${newFriendId}`,//this is just how the website works
+      balance: 0
+    };
+
+    onAddFriend(newFriend);
+
+    //reset to default values
+    setName('');
+    setUrl('https://i.pravatar.cc/48');
+  }
+ 
   return (
-    <form className="form-add-friend">
+    <form className="form-add-friend" onSubmit={createFriend}>
       <label>👭 Friend name</label>
-      <input type="text"></input>
+      <input type="text" value={name} onChange={(e) => setName(e.target.value)}></input>
 
       <label>🌆 Image url</label>
-      <input type="text"></input>
+      <input type="text" value={url} onChange={(e) => setUrl(e.target.value)}></input>
 
       <Button>Add</Button>
     </form>
