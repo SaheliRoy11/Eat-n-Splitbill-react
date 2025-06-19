@@ -42,6 +42,21 @@ export default function App() {
     setShowAddFriend(false); //when we open bill for spliting the money, the form for adding a new friend needs to be closed always.
   }
 
+  function handleSplitBill(value) {
+    setFriends(
+      (
+        friends //new array depends on current state hence using callback
+      ) =>
+        friends.map((friend) =>
+          friend.id === curSelectedFriend.id
+            ? { ...friend, balance: friend.balance + value }
+            : friend
+        )
+    );
+
+    setCurSelectedFriend(null);
+  }
+
   return (
     <div className="app">
       <div className="sidebar">
@@ -63,7 +78,10 @@ export default function App() {
       {
         //if curSelectedFriend is null then the FormSplitBill component is not rendered.
         curSelectedFriend && (
-          <FormSplitBill selectedFriend={curSelectedFriend} />
+          <FormSplitBill
+            selectedFriend={curSelectedFriend}
+            onSplitBill={handleSplitBill}
+          />
         )
       }
     </div>
@@ -168,14 +186,22 @@ function FormAddFriend({ onAddFriend }) {
   );
 }
 
-function FormSplitBill({ selectedFriend }) {
+function FormSplitBill({ selectedFriend, onSplitBill }) {
   const [bill, setBill] = useState(""); //since we used input type text, hence set defaul to empty string
   const [userExpense, setUserExpense] = useState("");
   const friendExpense = bill ? bill - userExpense : ""; //initially bill is empty string
   const [payer, setPayer] = useState("user");
 
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    if (!bill) return;
+
+    onSplitBill(payer === "user" ? friendExpense : 0 - userExpense);//if the user pays the bill then the friend owes their part to the user, otherwise the user owes their part to their friend.
+  }
+
   return (
-    <form className="form-split-bill">
+    <form className="form-split-bill" onSubmit={handleSubmit}>
       <h2>split a bill with {selectedFriend.name}</h2>
 
       <label>💰 Bill value </label>
