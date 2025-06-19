@@ -108,9 +108,15 @@ function Friend({ friend, onSelectFriend, curSelectedFriend }) {
         )}
       </div>
 
-      <Button handleClick={() => onSelectFriend(isSelected ?
-         null //if this friend component is already selected then now, it needs to close
-         : friend)}>
+      <Button
+        handleClick={() =>
+          onSelectFriend(
+            isSelected
+              ? null //if this friend component is already selected then now, it needs to close
+              : friend
+          )
+        }
+      >
         {isSelected ? "Close" : "Select"}
       </Button>
     </li>
@@ -163,21 +169,39 @@ function FormAddFriend({ onAddFriend }) {
 }
 
 function FormSplitBill({ selectedFriend }) {
+  const [bill, setBill] = useState(""); //since we used input type text, hence set defaul to empty string
+  const [userExpense, setUserExpense] = useState("");
+  const friendExpense = bill ? bill - userExpense : ""; //initially bill is empty string
+  const [payer, setPayer] = useState("user");
+
   return (
     <form className="form-split-bill">
       <h2>split a bill with {selectedFriend.name}</h2>
 
       <label>💰 Bill value </label>
-      <input type="text"></input>
+      <input
+        type="text"
+        value={bill}
+        onChange={(e) => setBill(Number(e.target.value))}
+      ></input>
 
       <label>🧍‍♂️ Your expense </label>
-      <input type="text"></input>
+      <input
+        type="text"
+        value={userExpense}
+        onChange={(e) =>
+          setUserExpense(
+            //prevents putting a value greater than the total bill, and if we try to then it sets the state to its current value and does not update with the value we are entering.
+            Number(e.target.value) > bill ? userExpense : Number(e.target.value)
+          )
+        }
+      ></input>
 
       <label>👭 {selectedFriend.name}'s expense: </label>
-      <input type="text" disabled></input>
+      <input type="text" disabled value={friendExpense}></input>
 
       <label>🤑 Who is paying the bill ? </label>
-      <select>
+      <select value={payer} onChange={(e) => setPayer(e.target.value)}>
         <option value="user">You</option>
         <option value="friend">{selectedFriend.name}</option>
       </select>
