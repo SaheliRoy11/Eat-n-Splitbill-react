@@ -74,13 +74,14 @@ export default function App() {
           {showAddFriend ? "Close" : "Add Friend"}
         </Button>
       </div>
-
+        
       {
         //if curSelectedFriend is null then the FormSplitBill component is not rendered.
         curSelectedFriend && (
           <FormSplitBill
             selectedFriend={curSelectedFriend}
             onSplitBill={handleSplitBill}
+            key={curSelectedFriend.id}
           />
         )
       }
